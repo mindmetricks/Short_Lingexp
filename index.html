@@ -27,7 +27,7 @@
     }
 
     .jspsych-content {
-        font-size: 27px; /* Adjust the font size */
+        font-size: 25px; /* Adjust the font size */
         text-align: center; /* Center the text */
       }
 
@@ -69,13 +69,20 @@
   // Define the timeline
   let timeline = [];
 
-  // Add demographics form
-  const demographics_form = {
+// Define demographics form
+const demographics_form = {
     type: jsPsychSurveyHtmlForm,
-    preamble: '<h3>Demographics Information</h3><p>Please provide the following information before starting the experiment:</p>',
+    preamble: '<h3>Welcome to Bilingual Lexical Decision Task! </h3><p>Please provide the following information:</p>',
     html: `
+      <label for="name">Name:</label><br>
+      <input type="text" id="name" name="name" required><br><br>
+
+      <label for="contact">Contact Number:</label><br>
+      <input type="text" id="contact" name="contact" required><br><br>
+  
       <label for="age">Age:</label><br>
       <input type="number" id="age" name="age" required><br><br>
+      
       <label for="gender">Gender:</label><br>
       <select id="gender" name="gender" required>
         <option value="male">Male</option>
@@ -86,30 +93,56 @@
       
       <label for="language">Native Language:</label><br>
       <input type="text" id="language" name="language" required><br><br>
+      
+      <label for="proficiency_hindi">Hindi Proficiency (1-5):</label><br>
+      <input type="number" id="proficiency_hindi" name="proficiency_hindi" min="1" max="5" required><br><br>
+      
+      <label for="proficiency_english">English Proficiency (1-5):</label><br>
+      <input type="number" id="proficiency_english" name="proficiency_english" min="1" max="5" required><br><br>
     `,
     on_finish: function(data) {
-      // Save the demographics data to the dataset
       jsPsych.data.addProperties({
+        name: data.response.name,  // Adding name to the data
+        contact: data.response.contact,
         age: data.response.age,
         gender: data.response.gender,
-        native_language: data.response.language
+        native_language: data.response.language,
+        proficiency_hindi: data.response.proficiency_hindi,
+        proficiency_english: data.response.proficiency_english
       });
     }
-  };
+  };  
   timeline.push(demographics_form);
 
   // Instructions
   const instructions = {
     type: jsPsychInstructions,
     pages: [
-      'Welcome to the language proficiency experiment.',
-      'You will complete two tasks: First, a lexical decision task in English, followed by a similar task in Hindi. You will need to decide if the presented stimuli are valid words or not.',
-      'Press "f" for valid words, and "j" for non-words.',
-      'Press any key to begin.'
+    'Welcome to the Language Proficiency Section.',
+    'In this section, you will complete two tasks.',
+    'The first is a lexical decision task in English, followed by a similar task in Hindi.',
+    'In both tasks, you will need to decide if the given stimuli are real words or non-words.',
+    'To respond: Press "f" for real (valid) words and "j" for non-words.',
+    'Each word or non-word will only appear briefly, and you must respond before the next trial begins.',
+    'If you miss a response, do not worry—focus on the upcoming trial.',
+    'Once the experiment ends, your responses will be downloaded as a csv File.',
+    'Download and share your responses with the experimenter. ',
+    'I repeat, to respond: Press "f" for real (valid) words and "j" for non-words.',
+    'When you are ready, press any key to start the English Proficiency test.'
     ],
     show_clickable_nav: true
   };
   timeline.push(instructions);
+
+
+  // Wait for 2 seconds
+  const wait_two_seconds = {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: '<p>Get ready...</p>',
+    choices: "NO_KEYS", // Updated to string "NO_KEYS"
+    trial_duration: 2000 // 2000 ms = 2 seconds
+  };
+  timeline.push(wait_two_seconds);
 
 const english_words = [
   'chair', 'apple', 'table', 'book', 'flower'
@@ -137,7 +170,7 @@ const english_lexical_decision_task = {
     //stimulus: function() { return `<div style="font-size: 56px;">${jsPsych.timelineVariable('stimulus', true)}</div>`; },
     stimulus: function() { return jsPsych.timelineVariable('stimulus'); },
     choices: ['f', 'j'],
-    stimulus_duration: 300,
+    stimulus_duration: 500,
     trial_duration: 1000,
     post_trial_gap: 500,
     data: {
@@ -164,9 +197,9 @@ const show_final_message_if_low_accuracy = {
   stimulus: function() {
     const accuracy = correct_responses / total_trials;
     if (accuracy < 0.60) {
-      return 'Your accuracy was less than 60%. The experiment will end now.';
+      return 'Your accuracy was less than 60%. Sorry, but you can not proceed ahead.';
     } else {
-      return 'You have completed the English proficiency task. Press any key to continue to the Hindi Proficiency Test.';
+      return 'You have completed the English proficiency task. Take some rest. Press any key to continue to the Hindi Proficiency Test once you are ready.';
     }
   },
   choices: function() {
@@ -178,7 +211,14 @@ const show_final_message_if_low_accuracy = {
 };
 timeline.push(show_final_message_if_low_accuracy);
 
-
+  // Wait for 2 seconds
+const wait_two_seconds2 = {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: '<p>Get ready...</p>',
+    choices: "NO_KEYS", // Updated to string "NO_KEYS"
+    trial_duration: 2000 // 2000 ms = 2 seconds
+};
+timeline.push(wait_two_seconds2);
 
 // Lexical Decision Task (Hindi)
 const hindi_words = [
@@ -206,7 +246,7 @@ const hindi_nonwords = [
       type: jsPsychHtmlKeyboardResponse,
       stimulus: function() { return jsPsych.timelineVariable('stimulus'); },
       choices: ['f', 'j'],
-      stimulus_duration: 300,  // The stimulus disappears after 300ms
+      stimulus_duration: 500,  // The stimulus disappears after 600ms
       trial_duration: 1000,    // Participants have 1000ms to respond
       post_trial_gap: 500,    // 1000ms gap before the next trial 
       data: { task: 'lexical_decision', language: 'Hindi', is_word: jsPsych.timelineVariable('is_word') },
@@ -229,9 +269,9 @@ const Hshow_final_message_if_low_accuracy = {
     stimulus: function() {
       const accuracy = Hcorrect_responses / Htotal_trials;
       if (accuracy < 0.60) {
-        return 'Your accuracy was less than 60%. The experiment will end now.';
+        return 'Your accuracy was less than 60%. Sorry, but you can not proceed ahead.';
       } else {
-        return 'You have completed the Hindi proficiency task. Press any key to continue to the main experiment.';
+        return 'You have completed the Hindi proficiency task. Take some rest. Press any key to continue to the main experiment once you are ready.';
       }
     },
     choices: function() {
@@ -242,6 +282,22 @@ const Hshow_final_message_if_low_accuracy = {
     }
   };
   timeline.push(Hshow_final_message_if_low_accuracy);
+  ////////////////////////////////////////////////////////////////////////////////////////////
+
+  const before_mainex = {
+    type: jsPsychInstructions,
+    pages: [
+      'This section consists of 3 blocks.',
+      'Each block is a Bilingual Lexical decision Task.',
+      'Words will appear in Hindi or English.',
+      'Your task is to identify whether the word is valid in any of the 2 languages.',
+      'The objective of the study is to test your speed and accuracy',
+      'Press any key to start with the First block.'
+    ],
+    show_clickable_nav: true
+  };
+  timeline.push(before_mainex);
+  
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -278,21 +334,53 @@ const Hshow_final_message_if_low_accuracy = {
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    // Wait for 2 seconds
+    const wait_two_seconds3 = {
+        type: jsPsychHtmlKeyboardResponse,
+        stimulus: '<p>Get ready...</p>',
+        choices: "NO_KEYS", // Updated to string "NO_KEYS"
+        trial_duration: 2000 // 2000 ms = 2 seconds
+      };
+      timeline.push(wait_two_seconds3);
+  
+  
   timeline.push(...block1_trials);
-    const after_block1 = {
+  const after_block1 = {
     type: jsPsychInstructions,
     pages: [
-      'You have completed Block 1. Next, you will go to Block 2. Press any key to continue.'
-    ],
+    'Congratulations! You have completed Block 1.',
+    'Take a moment to rest. Next, you will proceed to Block 2.',
+    'This block is similar to the previous one,',
+    'but all words with  will now be presented in Roman script.',
+    'For example, the word घर will appear as ghar, and this is to be considered as valid.',
+    'Ignore the script of the word and try to see if the word makes sense in any of the language, English or Hindi.',
+    'Press any key to continue when you are ready.'
+  ],
+  
     show_clickable_nav: true
   };
   timeline.push(after_block1 );
+
+    // Wait for 2 seconds
+    const wait_two_seconds4 = {
+        type: jsPsychHtmlKeyboardResponse,
+        stimulus: '<p>Get ready...</p>',
+        choices: "NO_KEYS", // Updated to string "NO_KEYS"
+        trial_duration: 2000 // 2000 ms = 2 seconds
+      };
+    timeline.push(wait_two_seconds4);
 
   timeline.push(...block2_trials);
   const after_block2 = {
     type: jsPsychInstructions,
     pages: [
-      'You have completed Block 2. Next, you will go to Block 3. Press any key to continue.'
+    'Congratulations! You have completed Block 2.',
+    'Take a moment to rest. Next, you will proceed to Block 3.',
+    'This block is similar to the previous one,',
+    'But all words with  will now be presented in Devnagari script.',
+    'For example, the word Computer will appear as कंप्यूटर, and this is to be considered as valid.',
+    'Ignore the script  of the word and try to see if the word makes sense in any of the language, English or Hindi.',
+    'Press any key to continue when you are ready.'
     ],
     show_clickable_nav: true
   };
@@ -300,11 +388,20 @@ const Hshow_final_message_if_low_accuracy = {
 
   timeline.push(...block3_trials);
 
+    // Wait for 2 seconds
+  const wait_two_seconds5 = {
+        type: jsPsychHtmlKeyboardResponse,
+        stimulus: '<p>Get ready...</p>',
+        choices: "NO_KEYS", // Updated to string "NO_KEYS"
+        trial_duration: 2000 // 2000 ms = 2 seconds
+      };
+    timeline.push(wait_two_seconds5);
+
   // Separation page after the experimental blocks
   const after_blocks_task = {
     type: jsPsychInstructions,
     pages: [
-      'You have completed the main experiment. Press any key to finish the experiment.'
+    'Congratulations! You have completed the main experiment. Press any key to finish the experiment. '
     ],
     show_clickable_nav: true
   };
@@ -314,7 +411,9 @@ const Hshow_final_message_if_low_accuracy = {
   const thank_you_page = {
     type: jsPsychInstructions,
     pages: [
-      'Thank you for participating in this experiment! Your responses have been recorded. Press any key to finish.'
+      'Thank you for participating in this experiment!',
+      'Your responses have been recorded.',
+      'Download your responses and share them with the experimenter. Press any key to finish.'
     ],
     show_clickable_nav: true
   };
