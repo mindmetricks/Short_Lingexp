@@ -170,8 +170,8 @@ const english_lexical_decision_task = {
     //stimulus: function() { return `<div style="font-size: 56px;">${jsPsych.timelineVariable('stimulus', true)}</div>`; },
     stimulus: function() { return jsPsych.timelineVariable('stimulus'); },
     choices: ['f', 'j'],
-    stimulus_duration: 500,
-    trial_duration: 1000,
+    stimulus_duration: 1500,
+    trial_duration: 500,
     post_trial_gap: 500,
     data: {
       task: 'lexical_decision',
@@ -246,8 +246,8 @@ const hindi_nonwords = [
       type: jsPsychHtmlKeyboardResponse,
       stimulus: function() { return jsPsych.timelineVariable('stimulus'); },
       choices: ['f', 'j'],
-      stimulus_duration: 500,  // The stimulus disappears after 600ms
-      trial_duration: 1000,    // Participants have 1000ms to respond
+      stimulus_duration: 1500,  // The stimulus disappears after 600ms
+      trial_duration: 500,    // Participants have 1000ms to respond
       post_trial_gap: 500,    // 1000ms gap before the next trial 
       data: { task: 'lexical_decision', language: 'Hindi', is_word: jsPsych.timelineVariable('is_word') },
       on_finish: function(data) {
@@ -443,8 +443,8 @@ const Hshow_final_message_if_low_accuracy = {
           data.correct = (data.response == 'f' && data.is_word) || (data.response == 'j' && !data.is_word);
           data.rt = jsPsych.data.getLastTrialData().values()[0].rt;
         },
-        stimulus_duration: 300,  // The stimulus disappears after 300ms
-        trial_duration: 1000,    // Participants have 1000ms to respond
+        stimulus_duration: 1500,  // The stimulus disappears after 300ms
+        trial_duration: 500,    // Participants have 1000ms to respond
         post_trial_gap: 500,    // 1000ms gap before the next trial
       });
       previousLanguage = blockStimuli[i].language;  // Update the previous language
